@@ -15,15 +15,32 @@ pygame.display.set_caption("My First Game ")
 bk_image = pygame.image.load("background.jpg")
 ship_image = pygame.image.load("ship.png")
 ship_image = pygame.transform.scale(ship_image,(75,150))
+laser_image = pygame.image.load("laser2.png")
+laser_image = pygame.transform.scale(laser_image, (10, 20))
+
 clock = pygame.time.Clock()
 
-circle_x=10
-circle_y=WINDOW_H/2
-x_step=10
+circle_x = 10
+circle_y = WINDOW_H /2
+ship_x = WINDOW_W /2
+ship_y = WINDOW_H - 150
+
+circle_x_step = 10
+x_step = 10
+laser_list = []
+
+
 
 play = True
-ship_x= WINDOW_W/2
-ship_y= WINDOW_H-150
+
+def print_lasers():
+  for i in range(len(laser_list)):
+    l = laser_list[i]
+    screen.blit(laser_image,(l[0],l[1]))
+    laser_list[i] = [l[0],l[1]-10]
+
+  if len(laser_list) > 0 and laser_list[0][1] < 0:
+    laser_list.remove(laser_list[0])
 
 while play:
   # screen.fill(BK_COLOR)
@@ -35,10 +52,13 @@ while play:
             ship_x -= 10
          if event.key == pygame.K_RIGHT:
             ship_x += 10
+         if event.key == pygame.K_SPACE:
+            laser_list.append([ship_x+30,ship_y])
+            laser_list.append([ship_x+30,ship_y-20])
 
    screen.blit(bk_image,(0,0))
    screen.blit(ship_image,(ship_x,ship_y))
-
+   print_lasers()
 
    pygame.draw.circle(screen,(0,0,0),(circle_x,circle_y), 30)
    circle_x +=x_step
