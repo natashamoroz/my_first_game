@@ -1,4 +1,4 @@
-import pygame
+import pygame 
 import time
 
 # screen size 
@@ -18,6 +18,18 @@ ship_image = pygame.transform.scale(ship_image,(75,150))
 laser_image = pygame.image.load("laser2.png")
 laser_image = pygame.transform.scale(laser_image, (10, 20))
 
+
+SOUND1= "piu.mp3"
+SOUND2= "sound.org.mp3"
+pygame.mixer.init()
+pygame.mixer.music.load(SOUND2)
+pygame.mixer.Channel(0).play(pygame.mixer.Sound(SOUND2))
+pygame.mixer.music.load(SOUND1)
+pygame.mixer.Channel(1).play(pygame.mixer.Sound(SOUND1))
+
+pygame.mixer.music.play()
+
+
 clock = pygame.time.Clock()
 
 circle_x = 10
@@ -32,6 +44,8 @@ laser_list = []
 
 
 play = True
+
+
 
 def print_lasers():
   for i in range(len(laser_list)):
@@ -55,6 +69,8 @@ while play:
          if event.key == pygame.K_SPACE:
             laser_list.append([ship_x+30,ship_y])
             laser_list.append([ship_x+30,ship_y-20])
+            pygame.mixer.music.play()
+            
 
    screen.blit(bk_image,(0,0))
    screen.blit(ship_image,(ship_x,ship_y))
