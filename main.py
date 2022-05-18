@@ -1,5 +1,17 @@
 import pygame 
 import time
+import cv2 
+import  mediapipe as mp
+
+mp_Hands = mp.solutions.hands
+hands = mp_Hands.Hands(max_num_hands=1)
+mpDraw = mp.solutions.drawing_utils
+
+color = 0, 0, 0
+orgX = 50, 80
+orgY = 50, 120
+
+vid = cv2.VideoCapture(0)
 
 # screen size 
 WINDOW_W = 1000 #הגדרת רוחב מסך
@@ -63,6 +75,21 @@ play = True
 hold= 0
 
 while play:
+   ret, frame = vid.read()
+   frame = cv2.flip(frame, 1)
+   
+
+   RGB_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+   results = hands.process(RGB_frame)
+   multiLandMarks = results.multi_hand_landmarks
+            
+
+   if ret == False:
+      print("error reading from cam...")
+      break
+   
+   if cv2.waitKey(1) & 0xFF == ord('q'):
+      break
    #ציור עיגול (מסך, צבע לבן, מיקום שהגדרנו, רדיוס)
    pygame.draw.circle(screen,(0,0,0),(circle_x,circle_y), 30) 
    pygame.display.flip() #הצגת הכדור על המסך
@@ -79,25 +106,36 @@ while play:
       font = pygame.font.SysFont(None, 50)
       img = font.render('you loser', True, red)
       screen.blit(img, (20, 20))
+      
    for event in pygame.event.get(): #לולאה של כל האירועים שיכולים לקרות על המסך
       if event.type == pygame.QUIT: #אם סוג האירוע הוא לחיצה על יציאה
          play=False #שינוי המשתנה לשקר ויציאה מהלולאה כך שהתוכנית תיסגר
-      elif event.type == pygame.KEYDOWN: #אם סוג האירוע הוא לחיצה על מקש
-         if event.key == pygame.K_LEFT:  #אם הלחיצה היא על המקש שמאלה
-            # ship_x -= 10 #ציר האיקס של החללית יקטן ב10
-            hold= -1
-         if event.key == pygame.K_RIGHT: #אם הלחיצה היא על המקש ימינה
-            # ship_x += 10 #ציר האיקס של החללית יגדל ב10
-            hold= 1
-      elif event.type == pygame.KEYUP:
-         hold= 0
+      elif event.type == pygame.KEYDOWN:
          if event.key == pygame.K_SPACE: #אם הלחיצה היא על מקש הרווח
             laser_list.append([ship_x+30,ship_y])
             laser_list.append([ship_x+30,ship_y-20])
             pygame.mixer.music.play()
+   if multiLandMarks:
+      for h in multiLandMarks:
+         mpDraw.draw_landmarks(frame, h, mp_Hands.HAND_CONNECTIONS)
+         index_finger_0 = multiLandMarks[0].landmark[0].x
+         if index_finger_0 < 0.4:
+            ship_x -= 10
+               # cv2.putText(frame, "right",(100,150), cv2.FONT_HERSHEY_SIMPLEX , 1, color, 2)
+         if index_finger_0 > 0.6:
+            ship_x += 10
+   if ship_x > WINDOW_W-75:
+      ship_x=WINDOW_W-75
+   if ship_x < 0:
+         ship_x=0
+               # cv2.putText(frame, "left",(500,150), cv2.FONT_HERSHEY_SIMPLEX , 1, color, 2)    
+        
+         
+   # cv2.imshow('original', frame)
+         
    screen.blit(bk_image,(0,0)) #הצגת הרקע
             
-   ship_x += hold * 10         
+        
             
 
    
@@ -115,5 +153,9 @@ while play:
    screen.blit(img, (20, 20))
 
    clock.tick(50) #קצב החזרה של הלולאה
+# # After the loop release the cap object
+vid.release()
+# # Destroy all the windows
+cv2.destroyAllWindows()
 
 pygame.quit()
