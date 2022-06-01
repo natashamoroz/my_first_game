@@ -69,9 +69,13 @@ ship_x = WINDOW_W / 2 #ציר האיקס של החללית (רוחב המסך/ 2
 ship_y = WINDOW_H - 150 #ציר הווי של החללית (גובה המסך - גובה החללית)
 laser_x= -100  #הגדרת ציר האיקס של הלייזר כך שלא יראו אותו
 laser_y= -100  #הגדרת ציר האיקס של הלייזר כך שלא יראו אותו
+index_finger_8= 0
+index_finger_12 =0
+index_finger_y0=0
+
 
 play = True
-
+count=0
 hold= 0
 
 while play:
@@ -107,6 +111,8 @@ while play:
       img = font.render('you loser', True, red)
       screen.blit(img, (20, 20))
       
+      
+
    for event in pygame.event.get(): #לולאה של כל האירועים שיכולים לקרות על המסך
       if event.type == pygame.QUIT: #אם סוג האירוע הוא לחיצה על יציאה
          play=False #שינוי המשתנה לשקר ויציאה מהלולאה כך שהתוכנית תיסגר
@@ -118,17 +124,32 @@ while play:
    if multiLandMarks:
       for h in multiLandMarks:
          mpDraw.draw_landmarks(frame, h, mp_Hands.HAND_CONNECTIONS)
-         index_finger_0 = multiLandMarks[0].landmark[0].x
-         if index_finger_0 < 0.4:
+         index_finger_20x = multiLandMarks[0].landmark[20].x
+         index_finger_16 = multiLandMarks[0].landmark[16].y
+         index_finger_13 = multiLandMarks[0].landmark[13].y
+         index_finger_12 = multiLandMarks[0].landmark[12].y
+         index_finger_9 = multiLandMarks[0].landmark[9].y
+         index_finger_20y = multiLandMarks[0].landmark[20].y
+         index_finger_17 = multiLandMarks[0].landmark[17].y
+         index_finger_4 = multiLandMarks[0].landmark[4].y
+         index_finger_1 = multiLandMarks[0].landmark[1].y
+      if index_finger_20y<index_finger_17:
+         if index_finger_20x < 0.4:
             ship_x -= 10
                # cv2.putText(frame, "right",(100,150), cv2.FONT_HERSHEY_SIMPLEX , 1, color, 2)
-         if index_finger_0 > 0.6:
+         if index_finger_20x > 0.6:
             ship_x += 10
+      if count>=10 and index_finger_17<index_finger_20y and index_finger_13<index_finger_16 and index_finger_12<index_finger_9:
+         laser_list.append([ship_x+30,ship_y])       
+         pygame.mixer.music.play()
+         count=0
+   count+=1
    if ship_x > WINDOW_W-75:
       ship_x=WINDOW_W-75
    if ship_x < 0:
          ship_x=0
-               # cv2.putText(frame, "left",(500,150), cv2.FONT_HERSHEY_SIMPLEX , 1, color, 2)    
+               # cv2.putText(frame, "left",(500,150), cv2.FONT_HERSHEY_SIMPLEX , 1, color, 2)  
+
         
          
    # cv2.imshow('original', frame)
